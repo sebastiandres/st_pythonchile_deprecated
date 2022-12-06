@@ -6,7 +6,8 @@ from unidecode import unidecode
 def make_clickable(link):
     # target _blank to open new window
     # extract clickable text to display for your link
-    text = link.replace("https://www.youtube.com/watch?v=", "yutu:")
+    youtube = "yutú:"
+    text = link.replace("https://www.youtube.com/watch?v=", youtube).replace("https://youtu.be/", youtube)
     return f'<a target="_blank" href="{link}">{text}</a>'
 
 
@@ -36,7 +37,7 @@ public_googlesheet = "https://docs.google.com/spreadsheets/d/1nctiWcQFaB5UlIs6z8
 sheet_id = "1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws"
 sheet_name = "charlas"
 url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
-df = pd.read_csv(url).fillna("")
+df = pd.read_csv(url, dtype=str).fillna("")
 
 # Lower all the text
 df_lower = df.copy()
