@@ -1,54 +1,33 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-from unidecode import unidecode
-import random
 
-def make_clickable(link):
-    # target _blank to open new window
-    # extract clickable text to display for your link
-    youtube = "yutú:"
-    text = link.replace("https://www.youtube.com/watch?v=", youtube).replace("https://youtu.be/", youtube)
-    return f'<a target="_blank" href="{link}">{text}</a>'
-
-
-def get_mask_for_keyword(df, keyword, search_cols=["autor", "titulo"]):
-    """
-    Get a mask from a dataframe based on a text
-    """
-    m = False
-    for col in search_cols:
-        m = np.logical_or(df_lower[col].str.contains(keyword), m)
-    return m
-
-def get_mask_for_keyword_list(df, keyword_list, search_cols=["autor", "titulo"]):
-    """
-    Get a mask from a dataframe based on a list of texts
-    """
-    m = False
-    for keyword in keyword_list:
-        m = np.logical_or(get_mask_for_keyword(df, keyword, search_cols), m)
-    return m
-
+from helpers import *
 
 st.set_page_config(page_title="Contenido audiovisual Python Chile", page_icon="https://pythonchile.cl/images/favicon.png", 
                 layout="wide", initial_sidebar_state="expanded")
 st.title('Python Chile: Contenidos Audiovisuales')
 
+# The data on the google sheet
+#['Evento', 'Lugar', 'Fecha', 'Orden', 'Track', 'Tipo', 'Programa Evento',
+#       'Autor', 'Titulo', 'Video', 'Palabras clave', 'Descripción',
+#       'Otros hipervínculos']
 public_googlesheet = "https://docs.google.com/spreadsheets/d/1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws/edit?usp=sharing"
 sheet_id = "1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws"
 sheet_name = "charlas"
 url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 df = pd.read_csv(url, dtype=str).fillna("")
 df.sort_values(["Fecha", "Orden", "Track"], ascending=False, inplace=True)
+df['Video'] = df['Video'].apply(make_clickable)
 
+# A little bit of cleaning, to make searching more easy
+# df_lower should get the columns
+# ['evento', 'lugar', 'fecha', 'orden', 'track', 'tipo', 'programa evento', 'autor', 'titulo', 'video', 'palabras clave', 'descripción', 'otros hipervínculos']
 # Lower all the text
 df_lower = df.copy()
 df_lower.columns = df_lower.columns.str.lower()
 for col in df_lower.columns:
     df_lower[col] = df_lower[col].apply(lambda x: unidecode(x.lower()))
-df['Video'] = df['Video'].apply(make_clickable)
 
+# We use the following columns to show data
 show_cols = ["Evento", "Lugar", "Fecha", "Tipo", "Autor", "Titulo", "Video", "Otros hipervínculos"]
 
 # Intro text
@@ -77,12 +56,34 @@ if text_search:
     if rec_required:
         mask_new = df_lower["video"] != ""
         mask = np.logical_and(mask, mask_new)
-    df_search = df.loc[mask, show_cols].to_html(escape=False, index=False)
-    # convert to html before showing so urls open easily
-    st.write(df_search, unsafe_allow_html=True)
+    df_search = df.loc[mask, show_cols].reset_index()
+    # Show the cards
+    N_cols = 5
+    for n_row, row in df_search.iterrows():
+        i = n_row%N_cols
+        if i==0:
+            st.write("")
+            cols = st.columns(N_cols, gap="large")
+        create_card(row, cols[n_row%N_cols])
 else:
     st.write("#### Últimos videos disponibles")
-    st.write(df[show_cols].head(3).to_html(escape=False, index=False), unsafe_allow_html=True)
+    N_cards, N_cols = 3, 3
+    df_latest = df[show_cols].head(N_cards).reset_index()
+    for n_row, row in df_latest.iterrows():
+        i = n_row%N_cols
+        if i==0:
+            st.write("")
+            cols = st.columns(N_cols, gap="large")
+        create_card(row, cols[n_row%N_cols])
+    #st.write(df[show_cols].head(3).to_html(escape=False, index=False), unsafe_allow_html=True)
     st.write("")
     st.write("#### Videos seleccionados aleatoriamente")
-    st.write(df[show_cols].sample(3).to_html(escape=False, index=False), unsafe_allow_html=True)
+    N_cards, N_cols = 3, 3
+    df_random = df[show_cols].sample(N_cards).reset_index()
+    for n_row, row in df_random.iterrows():
+        i = n_row%N_cols
+        if i==0:
+            st.write("")
+            cols = st.columns(N_cols, gap="large")
+        create_card(row, cols[i])
+
