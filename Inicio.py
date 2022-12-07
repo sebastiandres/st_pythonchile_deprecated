@@ -31,7 +31,8 @@ def get_mask_for_keyword_list(df, keyword_list, search_cols=["autor", "titulo"])
     return m
 
 
-st.set_page_config(page_title="Contenido audiovisual Python Chile", page_icon=":chile:", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Contenido audiovisual Python Chile", page_icon="https://pythonchile.cl/images/favicon.png", 
+                layout="wide", initial_sidebar_state="expanded")
 st.title('Python Chile: Contenidos Audiovisuales')
 
 public_googlesheet = "https://docs.google.com/spreadsheets/d/1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws/edit?usp=sharing"
@@ -39,6 +40,7 @@ sheet_id = "1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws"
 sheet_name = "charlas"
 url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 df = pd.read_csv(url, dtype=str).fillna("")
+df.sort_values(["Fecha", "Orden", "Track"], ascending=False, inplace=True)
 
 # Lower all the text
 df_lower = df.copy()
@@ -49,9 +51,11 @@ df['Video'] = df['Video'].apply(make_clickable)
 
 show_cols = ["Evento", "Lugar", "Fecha", "Tipo", "Autor", "Titulo", "Video", "Otros hipervínculos"]
 
+# Intro text
+st.caption(f"Descubre y aprende entre los más de {df.shape[0]} charlas, keynotes y talleres que hemos realizado en Python Chile.")
 c1, c2, c3 = st.columns([8,1,1])
 # The search bar
-ejemplos = ["python; data science", "machine learning", "streamlit"]
+ejemplos = ["data science", "machine learning", "streamlit", "pyladies", "comunidad", "industria"]
 if "ejemplo" not in st.session_state:
     st.session_state.ejemplo = ejemplos[random.randint(0, len(ejemplos)-1)]
 text_search = c1.text_input("Buscar por autor, título, descripción o tags. Separa conceptos por punto y coma (;)",
@@ -76,3 +80,9 @@ if text_search:
     df_search = df.loc[mask, show_cols].to_html(escape=False, index=False)
     # convert to html before showing so urls open easily
     st.write(df_search, unsafe_allow_html=True)
+else:
+    st.write("#### Últimos videos disponibles")
+    st.write(df[show_cols].head(3).to_html(escape=False, index=False), unsafe_allow_html=True)
+    st.write("")
+    st.write("#### Videos seleccionados aleatoriamente")
+    st.write(df[show_cols].sample(3).to_html(escape=False, index=False), unsafe_allow_html=True)
