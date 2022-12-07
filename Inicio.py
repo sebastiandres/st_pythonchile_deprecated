@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from unidecode import unidecode
+import random
 
 def make_clickable(link):
     # target _blank to open new window
@@ -48,15 +49,30 @@ df['Video'] = df['Video'].apply(make_clickable)
 
 show_cols = ["Evento", "Lugar", "Fecha", "Tipo", "Autor", "Titulo", "Video", "Otros hipervínculos"]
 
-with st.form("Búsqueda"):
-    c1, c2 = st.columns([10,1])
-    c2.markdown(""); c2.markdown(""); 
-    text = c1.text_input("Buscar por autor, título, descripción o tags. Separa conceptos por punto y coma (;)")
-    text = unidecode(text.lower())
-    keyword_list = [keyword.strip() for keyword in text.split(";")]
-    # Every form must have a submit button.
-    if c2.form_submit_button("Submit"):
-        mask = get_mask_for_keyword_list(df_lower, keyword_list)
-        df_search = df.loc[mask, show_cols].to_html(escape=False, index=False)
-        # convert to html before showing so urls open easily
-        st.write(df_search, unsafe_allow_html=True)
+c1, c2, c3 = st.columns([8,1,1])
+# The search bar
+ejemplos = ["python; data science", "machine learning", "streamlit"]
+if "ejemplo" not in st.session_state:
+    st.session_state.ejemplo = ejemplos[random.randint(0, len(ejemplos)-1)]
+text_search = c1.text_input("Buscar por autor, título, descripción o tags. Separa conceptos por punto y coma (;)",
+                            placeholder=st.session_state.ejemplo)
+text_search = unidecode(text_search.lower())
+# Get keywords from search bar
+keyword_list = [keyword.strip() for keyword in text_search.split(";")]
+# Add options
+talk_options = ["Cualquiera", "Charla", "Keynote", "Taller"]
+type_sel = c2.selectbox("Tipo", talk_options)
+c3.markdown(""); c3.markdown(""); 
+rec_required = c3.checkbox("Grabado", value=False)
+
+if text_search:
+    mask = get_mask_for_keyword_list(df_lower, keyword_list)
+    if type_sel != talk_options[0]:
+        mask_new = df_lower["tipo"] == type_sel.lower()
+        mask = np.logical_and(mask, mask_new)
+    if rec_required:
+        mask_new = df_lower["video"] != ""
+        mask = np.logical_and(mask, mask_new)
+    df_search = df.loc[mask, show_cols].to_html(escape=False, index=False)
+    # convert to html before showing so urls open easily
+    st.write(df_search, unsafe_allow_html=True)
