@@ -16,7 +16,7 @@ sheet_name = "charlas"
 url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 df = pd.read_csv(url, dtype=str).fillna("")
 df.sort_values(["Fecha", "Orden", "Track"], ascending=False, inplace=True)
-df['Video'] = df['Video'].apply(make_clickable)
+#df['Video'] = df['Video'].apply(make_clickable)
 
 # A little bit of cleaning, to make searching more easy
 # df_lower should get the columns
@@ -48,6 +48,9 @@ type_sel = c2.selectbox("Tipo", talk_options)
 c3.markdown(""); c3.markdown(""); 
 rec_required = c3.checkbox("Grabado", value=False)
 
+# Configure how many cards
+N_cards_per_col = 5
+
 if text_search:
     mask = get_mask_for_keyword_list(df_lower, keyword_list)
     if type_sel != talk_options[0]:
@@ -58,32 +61,36 @@ if text_search:
         mask = np.logical_and(mask, mask_new)
     df_search = df.loc[mask, show_cols].reset_index()
     # Show the cards
-    N_cols = 5
+    N_cards_per_col = 5
     for n_row, row in df_search.iterrows():
-        i = n_row%N_cols
+        i = n_row%N_cards_per_col
         if i==0:
             st.write("")
-            cols = st.columns(N_cols, gap="large")
-        create_card(row, cols[n_row%N_cols])
+            cols = st.columns(N_cards_per_col, gap="large")
+        create_card(row, cols[n_row%N_cards_per_col])
 else:
+    # Configure how many cards
+    N_cards =  N_cards_per_col * 1
+    # Show the cards
     st.write("#### Últimos videos disponibles")
-    N_cards, N_cols = 3, 3
     df_latest = df[show_cols].head(N_cards).reset_index()
     for n_row, row in df_latest.iterrows():
-        i = n_row%N_cols
+        i = n_row%N_cards_per_col
         if i==0:
             st.write("")
-            cols = st.columns(N_cols, gap="large")
-        create_card(row, cols[n_row%N_cols])
-    #st.write(df[show_cols].head(3).to_html(escape=False, index=False), unsafe_allow_html=True)
+            cols = st.columns(N_cards_per_col, gap="large")
+        create_card(row, cols[n_row%N_cards_per_col])
     st.write("")
     st.write("#### Videos seleccionados aleatoriamente")
-    N_cards, N_cols = 3, 3
     df_random = df[show_cols].sample(N_cards).reset_index()
     for n_row, row in df_random.iterrows():
-        i = n_row%N_cols
+        i = n_row%N_cards_per_col
         if i==0:
             st.write("")
-            cols = st.columns(N_cols, gap="large")
+            cols = st.columns(N_cards_per_col, gap="large")
         create_card(row, cols[i])
 
+# Add color to cards
+add_color_to_cards()
+
+st.write(df_lower)

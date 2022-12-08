@@ -3,6 +3,12 @@ import pandas as pd
 import numpy as np
 from unidecode import unidecode
 import random
+from collections import defaultdict
+
+image_dict = defaultdict(lambda: "https://www.pycon.cl/assets/images/pycon-og1.png")
+image_dict["pycon 2022"] = "https://pycon.cl/static/img/logo.png"
+image_dict["pyday 2022"] = "https://pycon.cl/static/img/logo.png"
+image_dict["pycon 2021"] = "https://pycon.cl/static/img/logo.png"
 
 def make_clickable(link):
     # target _blank to open new window
@@ -35,9 +41,45 @@ def create_card(row, c):
     Creates a card with the information of a row, using streamlit elements
     row has (at least) columns: ["Evento", "Lugar", "Fecha", "Tipo", "Autor", "Titulo", "Video", "Otros hipervínculos"]
     """
-    c.caption(f"{row['Evento'].strip()}-{row['Lugar'].strip()}-{row['Fecha'].strip()} ")
-    c.markdown(f"**{row['Autor'].strip()}**")
-    c.markdown(f"{row['Tipo'].strip()}: {row['Titulo'].strip()}")
-    c.markdown(f"{row['Video'].strip()}", unsafe_allow_html=True)
-    
+    link = row["Video"].strip()
+    evento = row["Evento"].strip()
+    image_link = image_dict[evento]
+    clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" width="150px"> </a>'
+    with c:
+        #st.write(clickable_image)
+        st.caption(f"{row['Evento'].strip()}-{row['Lugar'].strip()}-{row['Fecha'].strip()} ")
+        st.markdown(f"**{row['Autor'].strip()}**")
+        st.components.v1.html(clickable_image)
+        st.markdown(f"{row['Tipo'].strip()}: {row['Titulo'].strip()}")
+        #st.markdown(f"{row['Video'].strip()}", unsafe_allow_html=True)
+        
 
+def add_color_to_cards():
+    """
+    Adds color to the expanders.
+    Users don't need to call this function, is executed by default.
+    """
+    # Define your javascript
+    my_js = """
+    var cards = window.parent.document.getElementsByClassName("css-vhjbnf");
+    for (var i = 0; i < cards.length; i++) {
+        let card = cards[i];
+        // See if there´s content in the card
+        N_chars_in_cards = String(card.firstChild.innerHTML).length;
+        if (N_chars_in_cards >100){
+            card.style.border = "solid";
+            card.style.borderColor = "#E4F6F8";
+            card.style.borderWidth = "2px";
+            card.style.padding = "10px";
+            card.style.borderRadius = "10px";
+        }
+    }    
+    """
+
+    # Wrapt the javascript as html code
+    my_html = f"<script>{my_js}</script>"
+
+    # Execute your app
+    st.components.v1.html(my_html, height=0, width=0)
+
+    return
