@@ -15,7 +15,7 @@ def make_clickable(link):
     # extract clickable text to display for your link
     youtube = "yutú:"
     text = link.replace("https://www.youtube.com/watch?v=", youtube).replace("https://youtu.be/", youtube)
-    return f'<a target="_blank" href="{link}">{text}</a>'
+    return f'<a target="_blank" href="{link}" style="background-size: cover;">{text}</a>'
 
 
 def get_mask_for_keyword(df, keyword, search_cols=["autor", "titulo"]):
@@ -44,14 +44,13 @@ def create_card(row, c):
     link = row["Video"].strip()
     evento = row["Evento"].strip()
     image_link = image_dict[evento]
-    clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" width="150px"> </a>'
+    clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" style="width:100%;"> </a>'
     with c:
         #st.write(clickable_image)
         st.caption(f"{row['Evento'].strip()} - {row['Lugar'].strip()} - {row['Fecha'].strip()} ")
         st.markdown(f"**{row['Autor'].strip()}**")
         st.components.v1.html(clickable_image)
         st.markdown(f"{row['Tipo'].strip()}: {row['Titulo'].strip()}")
-        #st.markdown(f"{row['Video'].strip()}", unsafe_allow_html=True)
         
 
 def add_color_to_cards():
