@@ -4,11 +4,30 @@ import numpy as np
 from unidecode import unidecode
 import random
 from collections import defaultdict
+from IPython import embed
 
 image_dict = defaultdict(lambda: "https://github.com/sebastiandres/st_pythonchile/blob/main/images/python_chile.png?raw=true")
 image_dict["Pycon 2022"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pycon_2022.png?raw=true"
 image_dict["Pyday 2020"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pyday_2020.png?raw=true"
 image_dict["Sin registro"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/sin_registro.png?raw=true"
+
+def clean_name(name):
+    """
+    """
+    return name.strip().replace(" ", "").replace(r"%20","").lower()
+
+
+def read_googlesheet(sheet_id, sheet_name, sort_columns):
+    """
+    Reads a google sheet and returns a dataframe, sorted by the columns in sort_columns.
+    if the public_googlesheet is "https://docs.google.com/spreadsheets/d/1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws/edit?usp=sharing"
+    then the sheet_id is "1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws"
+    The sheet_name is the name of the sheet in the google sheet
+    """
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    df = pd.read_csv(url, dtype=str).fillna("")
+    df = df.sort_values(sort_columns, ascending=False, ignore_index=True)
+    return df
 
 def make_clickable(link):
     # target _blank to open new window
@@ -27,6 +46,12 @@ def get_mask_for_keyword(df, keyword, search_cols=["autor", "titulo"]):
         m = np.logical_or(df[col].str.contains(keyword), m)
     return m
 
+
+def clickable_image_html(link, image_link, style="width:100%;"):
+    html = f'<a href="{link}" target="_blank"> <img src="{image_link}" style="{style}"> </a>'
+    return html
+
+
 def get_mask_for_keyword_list(df, keyword_list, search_cols=["autor", "titulo"]):
     """
     Get a mask from a dataframe based on a list of texts
@@ -36,6 +61,7 @@ def get_mask_for_keyword_list(df, keyword_list, search_cols=["autor", "titulo"])
         m = np.logical_or(get_mask_for_keyword(df, keyword, search_cols), m)
     return m
 
+
 def create_card(row, c):
     """
     Creates a card with the information of a row, using streamlit elements
@@ -43,8 +69,12 @@ def create_card(row, c):
     """
     link = row["Video"].strip()
     evento = row["Evento"].strip()
-    image_link = image_dict[evento]
-    clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" style="width:100%;"> </a>'
+    if link != "Sin registro":
+        image_link = image_dict[evento]
+        clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" style="width:100%;"> </a>'
+    else:
+        image_link = image_dict["Sin registro"]
+        clickable_image = f'<img src="{image_link}" style="width:100%;">'
     with c:
         #st.write(clickable_image)
         st.caption(f"{row['Evento'].strip()} - {row['Lugar'].strip()} - {row['Fecha'].strip()} ")
