@@ -8,7 +8,7 @@ from collections import defaultdict
 image_dict = defaultdict(lambda: "https://github.com/sebastiandres/st_pythonchile/blob/main/images/python_chile.png?raw=true")
 image_dict["Pycon 2022"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pycon_2022.png?raw=true"
 image_dict["Pyday 2020"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pyday_2020.png?raw=true"
-#image_dict["pycon 2021"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pycon_2022.png?raw=true"
+image_dict["Sin registro"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/sin_registro.png?raw=true"
 
 def make_clickable(link):
     # target _blank to open new window
