@@ -16,7 +16,10 @@ sheet_name = "charlas"
 url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 df = pd.read_csv(url, dtype=str).fillna("")
 df.sort_values(["Fecha", "Orden", "Track"], ascending=False, inplace=True)
-#df['Video'] = df['Video'].apply(make_clickable)
+
+# Filter incomplete rows
+df = df.loc[df["Autor"] != "", :]
+df = df.loc[df["Titulo"] != "", :]
 
 # A little bit of cleaning, to make searching more easy
 # df_lower should get the columns
@@ -92,5 +95,3 @@ else:
 
 # Add color to cards
 add_color_to_cards()
-
-st.write(df_lower)
