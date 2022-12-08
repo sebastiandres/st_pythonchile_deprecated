@@ -29,12 +29,15 @@ def read_googlesheet(sheet_id, sheet_name, sort_columns):
     df = df.sort_values(sort_columns, ascending=False, ignore_index=True)
     return df
 
-def make_clickable(link):
+def html_link(text, link, blank=True):
     # target _blank to open new window
     # extract clickable text to display for your link
-    youtube = "yutú:"
-    text = link.replace("https://www.youtube.com/watch?v=", youtube).replace("https://youtu.be/", youtube)
-    return f'<a target="_blank" href="{link}" style="background-size: cover;">{text}</a>'
+    #youtube = "yutú:"
+    #text = link.replace("https://www.youtube.com/watch?v=", youtube).replace("https://youtu.be/", youtube)
+    if blank:
+        return f'<a target="_blank" href="{link}"> {text} </a>'
+    else:
+        return f'<a target="_top" href="{link}">{text}</a>'
 
 
 def get_mask_for_keyword(df, keyword, search_cols=["autor", "titulo"]):
@@ -78,10 +81,49 @@ def create_card(row, c):
     with c:
         #st.write(clickable_image)
         st.caption(f"{row['Evento'].strip()} - {row['Lugar'].strip()} - {row['Fecha'].strip()} ")
-        st.markdown(f"**{row['Autor'].strip()}**")
-        st.components.v1.html(clickable_image)
+        #st.markdown(f"**{row['Autor'].strip()}**")
+        authors_html_list = []
+        for author in row["Autor"].split(";"):
+            authors_html_list.append(html_link(author, f"/?author={author}", blank=True))
+        authors_html = " | ".join(authors_html_list)
+        st.components.v1.html(authors_html + clickable_image)
         st.markdown(f"{row['Tipo'].strip()}: {row['Titulo'].strip()}")
         
+
+def add_style():
+    """
+    Adds style so link are not blue
+    """
+    # Define style
+    style = """
+    a:link {
+    color: inherit;
+    text-decoration: none;
+    }
+
+    a:visited {
+    color: inherit;
+    text-decoration: none;
+    }
+
+    a:hover {
+    color: red;
+    text-decoration: underline;
+    }
+
+    a:active {
+    color: red;
+    text-decoration: underline;
+    }
+    """
+    my_html = f"""
+                <style>
+                {style} 
+                </style>
+                """
+
+    # Execute your app
+    st.components.v1.html(my_html, height=0, width=0)
 
 def add_color_to_cards():
     """
@@ -106,8 +148,11 @@ def add_color_to_cards():
     """
 
     # Wrapt the javascript as html code
-    my_html = f"<script>{my_js}</script>"
-
+    my_html = f"""
+                <script>
+                {my_js}
+                </script>
+                """
     # Execute your app
     st.components.v1.html(my_html, height=0, width=0)
 
