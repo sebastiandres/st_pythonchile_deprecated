@@ -14,7 +14,7 @@ image_dict["Sin registro"] = "https://github.com/sebastiandres/st_pythonchile/bl
 def clean_name(name):
     """
     """
-    return name.strip().replace(" ", "").replace(r"%20","").lower()
+    return unidecode(name.strip().replace(" ", "").replace(r"%20","").lower())
 
 
 def read_googlesheet(sheet_id, sheet_name, sort_columns):
@@ -51,7 +51,7 @@ def get_mask_for_keyword(df, keyword, search_cols=["autor", "titulo"]):
 
 
 def clickable_image_html(link, image_link, style="width:100%;"):
-    html = f'<a href="{link}" target="_blank"> <img src="{image_link}" style="{style}"> </a>'
+    html = f'<a href="{link}" target="_blank"><img src="{image_link}" style="{style}"></a>'
     return html
 
 

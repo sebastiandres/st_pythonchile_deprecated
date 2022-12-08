@@ -24,7 +24,6 @@ def is_author_in_authors(df_authors, author):
 def display_author(df_authors, df_events, author_search_name):
     """
     """
-    #from IPython import embed; embed()
     # Start the page
     st.caption('Python Chile: Autores')
     author_clean_name = clean_name(author_search_name)
@@ -43,15 +42,15 @@ def display_author(df_authors, df_events, author_search_name):
                 link = df_author_links[company].values[0]
                 if len(link)>0:
                     image_link = f"https://github.com/sebastiandres/st_pythonchile/blob/main/images/social_media_icons/{company}.png?raw=true"
-                    html = clickable_image_html(link, image_link, style="width:50px;")
+                    html = clickable_image_html(link, image_link, style="width:25px;")
                     known_companies_html.append(html)
-        html_social_media = " ".join(known_companies_html)
+        html_social_media = "".join(known_companies_html)
     else:
         html_social_media = " "
     # If there is a match, then show the author page
     author_display_name = df_author_events["Autor"].values[0]
     st.title(author_display_name)
-    st.components.v1.html(html_social_media, height=100)
+    st.components.v1.html(html_social_media, height=50)
     # Show the cards
     N_cards_per_col = 5
     for n_row, row in df_author_events.iterrows():
@@ -62,8 +61,8 @@ def display_author(df_authors, df_events, author_search_name):
         create_card(row, cols[n_row%N_cards_per_col])
     add_color_to_cards()
     # Show table!
-    st.write(df_author_links)
-    st.write(df_author_events)
+    #st.write(df_author_links)
+    #st.write(df_author_events)
 
 def display_404_author(author):
     """
