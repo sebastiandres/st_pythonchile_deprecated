@@ -4,7 +4,7 @@ import numpy as np
 from unidecode import unidecode
 import random
 from collections import defaultdict
-from IPython import embed
+#from IPython import embed
 
 image_dict = defaultdict(lambda: "https://github.com/sebastiandres/st_pythonchile/blob/main/images/python_chile.png?raw=true")
 image_dict["Pycon 2022"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pycon_2022.png?raw=true"
