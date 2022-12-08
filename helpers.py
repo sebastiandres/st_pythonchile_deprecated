@@ -35,7 +35,7 @@ def html_link(text, link, blank=True):
     #youtube = "yutú:"
     #text = link.replace("https://www.youtube.com/watch?v=", youtube).replace("https://youtu.be/", youtube)
     if blank:
-        return f'<a target="_blank" href="{link}"> {text} </a>'
+        return f'<a target="_blank" href="{link}">{text}</a>'
     else:
         return f'<a target="_top" href="{link}">{text}</a>'
 
@@ -86,7 +86,8 @@ def create_card(row, c):
         for author in row["Autor"].split(";"):
             authors_html_list.append(html_link(author, f"/?author={author}", blank=True))
         authors_html = " | ".join(authors_html_list)
-        st.components.v1.html(authors_html + clickable_image)
+        st.markdown(authors_html + clickable_image, unsafe_allow_html=True)
+        #st.components.v1.html(authors_html + clickable_image)
         st.markdown(f"{row['Tipo'].strip()}: {row['Titulo'].strip()}")
         
 
@@ -135,7 +136,7 @@ def add_color_to_cards():
     var cards = window.parent.document.getElementsByClassName("css-vhjbnf");
     for (var i = 0; i < cards.length; i++) {
         let card = cards[i];
-        // See if there´s content in the card
+        // See if there's content in the card
         N_chars_in_cards = String(card.firstChild.innerHTML).length;
         if (N_chars_in_cards >100){
             card.style.border = "solid";
@@ -143,6 +144,9 @@ def add_color_to_cards():
             card.style.borderWidth = "2px";
             card.style.padding = "10px";
             card.style.borderRadius = "10px";
+            card.style.borderRadius = "10px";
+            card.addEventListener("mouseover", function(event){card.style.borderColor = "red"})
+            card.addEventListener("mouseout",  function(event){card.style.borderColor = "#E4F6F8"})
         }
     }    
     """
