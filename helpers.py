@@ -5,10 +5,10 @@ from unidecode import unidecode
 import random
 from collections import defaultdict
 
-image_dict = defaultdict(lambda: "https://www.pycon.cl/assets/images/pycon-og1.png")
-image_dict["pycon 2022"] = "https://pycon.cl/static/img/logo.png"
-image_dict["pyday 2022"] = "https://pycon.cl/static/img/logo.png"
-image_dict["pycon 2021"] = "https://pycon.cl/static/img/logo.png"
+image_dict = defaultdict(lambda: "https://github.com/sebastiandres/st_pythonchile/blob/main/images/python_chile.png?raw=true")
+image_dict["Pycon 2022"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pycon_2022.png?raw=true"
+image_dict["Pyday 2020"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pyday_2020.png?raw=true"
+#image_dict["pycon 2021"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pycon_2022.png?raw=true"
 
 def make_clickable(link):
     # target _blank to open new window
@@ -47,7 +47,7 @@ def create_card(row, c):
     clickable_image = f'<a href="{link}" target="_blank"> <img src="{image_link}" width="150px"> </a>'
     with c:
         #st.write(clickable_image)
-        st.caption(f"{row['Evento'].strip()}-{row['Lugar'].strip()}-{row['Fecha'].strip()} ")
+        st.caption(f"{row['Evento'].strip()} - {row['Lugar'].strip()} - {row['Fecha'].strip()} ")
         st.markdown(f"**{row['Autor'].strip()}**")
         st.components.v1.html(clickable_image)
         st.markdown(f"{row['Tipo'].strip()}: {row['Titulo'].strip()}")
