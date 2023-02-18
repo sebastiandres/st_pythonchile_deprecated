@@ -1,5 +1,7 @@
 # README
 
+![](./assets/pythonchile-streamlit-app.gif.gif)
+
 ## Español
 Buscador de Charlas Python Chile [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pythonchile.streamlit.app/)
 
