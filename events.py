@@ -4,7 +4,7 @@ from helpers import *
 
 def get_events_data():
     # Shared gsheet_id
-    gsheet_id = "1nctiWcQFaB5UlIs6z8d1O6ZgMHFDMAoo3twVxYnBUws"
+    gsheet_id = "1cAKdPUbW9ZEOrffgnwTHFltwUM86te7o3KkQq_r7Srk"
     # Data for the talks (charlas)
     df = read_googlesheet(gsheet_id, "charlas", ["Fecha", "Orden", "Track"])
     df.columns = [ unidecode(s.strip()) for s in df.columns]
@@ -33,7 +33,7 @@ def display_search(df):
     st.title('Python Chile: Registros de eventos')
     # Intro text
     st.caption(f"Descubre y aprende entre los más de **{df.shape[0]}** charlas, keynotes y talleres que hemos realizado en Python Chile.")
-    c1, c2, c3 = st.columns([8,1,1])
+    c1, c2, c3 = st.columns([5,1,1])
     # The search bar
     ejemplos = ["data science", "machine learning", "streamlit", "pyladies", "comunidad", "industria"]
     if "ejemplo" not in st.session_state:

@@ -4,8 +4,9 @@ from helpers import *
 from events import *
 from authors import *
 
-st.set_page_config(page_title="Contenido audiovisual Python Chile", page_icon="https://pythonchile.cl/images/favicon.png", 
-                layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Contenido audiovisual Python Chile", 
+                page_icon="https://pythonchile.cl/images/favicon.png", 
+                layout="wide")
 df_events = get_events_data()
 df_authors = get_authors_data()
 
