@@ -2,3 +2,6 @@ streamlit
 pandas
 numpy
 unidecode
+langchain
+openai
+tabulate

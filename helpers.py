@@ -11,6 +11,18 @@ image_dict["Pycon 2022"] = "https://github.com/sebastiandres/st_pythonchile/blob
 image_dict["Pyday 2020"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/pyday_2020.png?raw=true"
 image_dict["Sin registro"] = "https://github.com/sebastiandres/st_pythonchile/blob/main/images/sin_registro.png?raw=true"
 
+def get_events_data():
+    # Shared gsheet_id
+    gsheet_id = "1cAKdPUbW9ZEOrffgnwTHFltwUM86te7o3KkQq_r7Srk"
+    # Data for the talks (charlas)
+    df = read_googlesheet(gsheet_id, "charlas", ["Fecha", "Orden", "Track"])
+    df.columns = [ unidecode(s.strip()) for s in df.columns]
+    df["author_clean_name"] = df["Autor"].apply(clean_name)
+    df = df.loc[df["Autor"] != "", :] # Filter out empty rows
+    df = df.loc[df["Titulo"] != "", :] # Filter out empty rows
+    return df
+
+
 def clean_name(name):
     """
     """

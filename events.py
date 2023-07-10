@@ -2,16 +2,7 @@ import streamlit as st
 
 from helpers import *
 
-def get_events_data():
-    # Shared gsheet_id
-    gsheet_id = "1cAKdPUbW9ZEOrffgnwTHFltwUM86te7o3KkQq_r7Srk"
-    # Data for the talks (charlas)
-    df = read_googlesheet(gsheet_id, "charlas", ["Fecha", "Orden", "Track"])
-    df.columns = [ unidecode(s.strip()) for s in df.columns]
-    df["author_clean_name"] = df["Autor"].apply(clean_name)
-    df = df.loc[df["Autor"] != "", :] # Filter out empty rows
-    df = df.loc[df["Titulo"] != "", :] # Filter out empty rows
-    return df
+from llm import get_most_relevant_videos
 
 def display_search(df):
     """
@@ -33,36 +24,50 @@ def display_search(df):
     st.title('Python Chile: Registros de eventos')
     # Intro text
     st.caption(f"Descubre y aprende entre los más de **{df.shape[0]}** charlas, keynotes y talleres que hemos realizado en Python Chile.")
-    c1, c2, c3 = st.columns([5,1,1])
-    # The search bar
-    ejemplos = ["data science", "machine learning", "streamlit", "pyladies", "comunidad", "industria"]
-    if "ejemplo" not in st.session_state:
-        st.session_state.ejemplo = ejemplos[random.randint(0, len(ejemplos)-1)]
-    text_search = c1.text_input("Buscar por autor, título, descripción o tags. Separa conceptos por punto y coma (;)",
-                                placeholder=st.session_state.ejemplo)
-    text_search = unidecode(text_search.lower())
-    # Get keywords from search bar
-    keyword_list = [keyword.strip() for keyword in text_search.split(";")]
-    # Add options
-    talk_options = ["Cualquiera", "Charla", "Keynote", "Taller"]
-    type_sel = c2.selectbox("Tipo", talk_options)
-    c3.markdown(""); c3.markdown(""); 
-    rec_required = c3.checkbox("Grabado", value=False)
+    search_types = ["Búsqueda exacta", "Búsqueda con OpenAI (experimental)"]
+    search_type_sel = st.radio("¿Cómo quieres buscar?", search_types, horizontal=True)
+    if search_type_sel == search_types[0]:
+        c1, c2, c3 = st.columns([5,1,1])
+        # The search bar
+        ejemplos = ["data science", "machine learning", "streamlit", "pyladies", "comunidad", "industria"]
+        if "ejemplo" not in st.session_state:
+            st.session_state.ejemplo = ejemplos[random.randint(0, len(ejemplos)-1)]
+        text_search = c1.text_input("Buscar por autor, título, descripción o tags. Separa conceptos por punto y coma (;)",
+                                    placeholder=st.session_state.ejemplo)
+        text_search = unidecode(text_search.lower())
+        # Get keywords from search bar
+        keyword_list = [keyword.strip() for keyword in text_search.split(";")]
+        # Add options
+        talk_options = ["Cualquiera", "Charla", "Keynote", "Taller"]
+        type_sel = c2.selectbox("Tipo", talk_options)
+        c3.markdown(""); c3.markdown(""); 
+        rec_required = c3.checkbox("Grabado", value=False)
 
-    # Configure how many cards
+        # Configure how many cards
+        N_cards_per_col = 5
+    else:
+        text_search = st.text_input("Escribe que te gustaría aprender sobre Python",
+                                    placeholder=st.session_state.ejemplo)
+
+    # Display parameters
     N_cards_per_col = 5
 
     if text_search:
-        mask = get_mask_for_keyword_list(df_lower, keyword_list)
-        if type_sel != talk_options[0]:
-            mask_new = df_lower["tipo"] == type_sel.lower()
-            mask = np.logical_and(mask, mask_new)
-        if rec_required:
-            mask_new = df_lower["video"] != ""
-            mask = np.logical_and(mask, mask_new)
-        df_search = df.loc[mask, show_cols].reset_index()
+        if search_type_sel == search_types[0]:
+            mask = get_mask_for_keyword_list(df_lower, keyword_list)
+            if type_sel != talk_options[0]:
+                mask_new = df_lower["tipo"] == type_sel.lower()
+                mask = np.logical_and(mask, mask_new)
+            if rec_required:
+                mask_new = df_lower["video"] != ""
+                mask = np.logical_and(mask, mask_new)
+            df_search = df.loc[mask, show_cols].reset_index()
+        else:
+            # Get the results
+            index_list = get_most_relevant_videos(text_search, df, openai_api_key=st.secrets["OPENAI_API_KEY"])
+            print(index_list)
+            df_search = df.loc[index_list].reset_index()
         # Show the cards
-        N_cards_per_col = 5
         for n_row, row in df_search.iterrows():
             i = n_row%N_cards_per_col
             if i==0:
